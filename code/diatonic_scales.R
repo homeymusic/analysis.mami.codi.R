@@ -1,8 +1,4 @@
-library(mami.codi.R)
-library(magrittr)
-library(dplyr)
-library(purrr)
-source('data/chords.R')
+source('code/setup.R')
 
 scales = (imap(diatonic_pitches(), function(x,y) {
   list(a(x,tonic = 0,  name = paste(y, 'Low')),
