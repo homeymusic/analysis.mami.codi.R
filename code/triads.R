@@ -22,9 +22,16 @@ paste('ma.mi / co.di:',major_minor_range / consonance_dissonance_range)
 paste('co.di / ma.mi:',consonance_dissonance_range / major_minor_range)
 
 # example of most major chord is {0,3,6,10} with 0 tonic ma.mi: 2.29 co.di: 2.29
+chord.combinations[[4]] %>% filter(major_minor > 2.2)
+
 # example of most minor chord is {0,4,7,10} with 10 as tonic ma.mi: -2.29 co.di: 2.29
+chord.combinations[[4]] %>% filter(major_minor < -2.2)
+
 # most consonant is {0,12} ma.mi: 0 co.di: 6.91
+a(c(0,12))
+
 # most dissonant is {0:12} ma.mi: 0 co.di: 0
+a(c(0:12))
 
 # code used to generate the chord combinations stored in RDS file
 #
