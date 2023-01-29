@@ -2,7 +2,6 @@ source('code/setup.R')
 
 ###
 # a list of chord combos grouped by number of pitches in each chord
-#
 # code used to generate the chord combinations stored in RDS file
 #
 # chord.combinations = lapply(1:12,function(chord_length) {
@@ -16,16 +15,16 @@ source('code/setup.R')
 #
 # saveRDS(chord.combinations,file='data/chord.combinations.RDS')
 #
-chord.combinations <- readRDS('data/chord.combinations.RDS')
+chord.combinations.by.length <- readRDS('data/chord.combinations.RDS')
 
-stats = chord.combinations %>% seq_along %>% lapply(function(i) {
+stats = chord.combinations.by.length %>% seq_along %>% lapply(function(i) {
   tibble::tibble_row(
-    count = nrow(chord.combinations[[i]]),
-    major_minor_max = chord.combinations[[i]]$major_minor %>% max,
-    major_minor_min = chord.combinations[[i]]$major_minor %>% min,
+    count = nrow(chord.combinations.by.length[[i]]),
+    major_minor_max = chord.combinations.by.length[[i]]$major_minor %>% max,
+    major_minor_min = chord.combinations.by.length[[i]]$major_minor %>% min,
     major_minor_range = .data$major_minor_max - .data$major_minor_min,
-    consonance_dissonance_max = chord.combinations[[i]]$consonance_dissonance %>% max,
-    consonance_dissonance_min = chord.combinations[[i]]$consonance_dissonance %>% min,
+    consonance_dissonance_max = chord.combinations.by.length[[i]]$consonance_dissonance %>% max,
+    consonance_dissonance_min = chord.combinations.by.length[[i]]$consonance_dissonance %>% min,
     consonance_dissonance_range = .data$consonance_dissonance_max - .data$consonance_dissonance_min,
     ratio = consonance_dissonance_range / major_minor_range
   )
@@ -44,31 +43,35 @@ abline(a=0,b=1)
 ###
 # all chords combined into one tibble
 #
-chord.combinations <- chord.combinations %>% bind_rows
-# example of most major chord is {0,3,6,10} with 0 tonic ma.mi: 2.29 co.di: 2.29
+chord.combinations <- chord.combinations.by.length %>% bind_rows
+# most major chords
 chord.combinations %>% arrange(desc(major_minor),desc(consonance_dissonance))
-chord.combinations %>% filter(major_minor > 2.2)
+# most minor chords
+chord.combinations %>% arrange(major_minor,desc(consonance_dissonance))
 
-# example of most minor chord is {0,4,7,10} with 10 as tonic ma.mi: -2.29 co.di: 2.29
-chord.combinations %>% filter(major_minor < -2.2)
-
-# most consonant is {0,12} ma.mi: 0 co.di: 6.91
-a(c(0,12))
-
-# most dissonant is {0:12} ma.mi: 0 co.di: 0
-a(c(0:12))
+# most consonant
+# example of most major chord
+chord.combinations %>% arrange(desc(consonance_dissonance),desc(major_minor))
+# most dissonant
+chord.combinations %>% arrange(consonance_dissonance,desc(major_minor))
 
 # overall stats
 chord.combinations %>% summary
 
-# 53,235 chord combinations
-# only 124 are unique in major-minor and consonance-dissonance space
+mami.max = chord.combinations$major_minor %>% max
+mami.min = chord.combinations$major_minor %>% min
+codi.max = chord.combinations$consonance_dissonance %>% max
+codi.min = chord.combinations$consonance_dissonance %>% min
+
+(codi.max - codi.min) / (mami.max - mami.min)
+
+# all chord combinations versus unique major-minor and consonance-dissonance
 num.chord.combinations <- chord.combinations %>% nrow
 distinct.chord.combinations <- chord.combinations %>%
   distinct(major_minor, consonance_dissonance, .keep_all = TRUE)
 num.distinct.chord.combinations <- distinct.chord.combinations %>% nrow
 
-# 0.002329295 or 0.23% are distinct
+# percent unique
 num.distinct.chord.combinations / num.chord.combinations
 
 plot(distinct.chord.combinations$major_minor,
@@ -85,26 +88,19 @@ p = auditory_plot(distinct.chord.combinations,c('major_minor','consonance_disson
 save_auditory_plots(p,'results/plots')
 p
 
-# pearson: 0.4326733
 cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
     method='pearson')
-# kendall: 0.3299057
 cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
     method='kendall')
-# spearman: 0.3838189
 cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
     method='spearman')
 
-# pearson 0.3490965
 cor(distinct.chord.combinations$consonance.low, distinct.chord.combinations$consonance.high,
     method='pearson')
-# kendall: 0.232105
 cor(distinct.chord.combinations$consonance.low, distinct.chord.combinations$consonance.high,
     method='kendall')
-# spearman: 0.3199943
 cor(distinct.chord.combinations$consonance.low, distinct.chord.combinations$consonance.high,
     method='spearman')
-
 
 combo.consonance.data = chord.combinations %>% group_by(consonance_dissonance) %>%
   summarise(n=n(),name=first(integer_name))
@@ -118,9 +114,24 @@ text(combo.consonance.data$consonance_dissonance,combo.consonance.data$n,combo.c
 
 
 heatmap.data = chord.combinations %>% group_by(major_minor,consonance_dissonance) %>%
-  summarise(n=n())
+  summarise(n=n(),name=last(integer_name))
+plot(heatmap.data$major_minor,heatmap.data$consonance_dissonance)
+text(heatmap.data$major_minor,heatmap.data$consonance_dissonance,
+     heatmap.data$name,pos=3)
 p = ggplot(heatmap.data,aes(x=major_minor,y=consonance_dissonance,color=n)) +
-  geom_point(size=4) + theme_bw() + ggtitle('Heat Map Chord Frequency')
+  geom_point(size=2) + theme_bw() + ggtitle('Heat Map Chord Frequency') +
   scale_colour_continuous(direction=-1, trans='log10', type='viridis')
 
 save_auditory_plots(p,'results/plots')
+
+
+octave = a(c(0,12))
+minor_second = a(c(0,1))
+augmented_triad = a(c(0,4,8))
+chromatic = a(0:12)
+octave$consonance_dissonance
+minor_second$consonance_dissonance
+augmented_triad$consonance_dissonance
+chromatic$consonance_dissonance
+(octave$consonance_dissonance - heatmap.data$consonance_dissonance %>% min) / 2
+
