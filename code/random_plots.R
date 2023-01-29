@@ -5,8 +5,6 @@ plot_consonance_dissonance_major_minor(major_minor_triads(),'Major and Minor Tri
 plot_consonance_dissonance_major_minor(major_dual_minor_triads(),'Major and Dual Minor Triads')
 plot_consonance_dissonance_major_minor(minor_dual_major_triads(),'Minor and Dual Major Triads')
 plot_consonance_dissonance_major_minor(major_minor_dual_minor_triads(),'Major, Minor and Dual Minor Triads')
-chords = dplyr::bind_rows(diatonic_scales())
-plot_consonance_dissonance_major_minor(chords,'Diatonic Scales')
 chords = dplyr::bind_rows(diatonic_triads())
 plot_consonance_dissonance_major_minor(chords,'Diatonic Triads')
 chords = dplyr::bind_rows(major_triad_progression())
