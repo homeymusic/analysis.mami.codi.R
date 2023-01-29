@@ -118,7 +118,7 @@ plot(heatmap.data$major_minor,heatmap.data$consonance_dissonance)
 text(heatmap.data$major_minor,heatmap.data$consonance_dissonance,
      heatmap.data$name,pos=3)
 p = ggplot(heatmap.data,aes(x=major_minor,y=consonance_dissonance,color=n)) +
-  geom_point(size=2) + theme_bw() + ggtitle('Heat Map Chord Frequency') +
+  geom_point(size=2) + theme_bw() + ggtitle('Distinct Chord Combinations Heat Map') +
   scale_colour_continuous(direction=-1, trans='log10', type='viridis')
 
 save_auditory_plots(p,'results/plots')

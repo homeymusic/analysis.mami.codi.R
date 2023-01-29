@@ -318,7 +318,8 @@ ionian_tonic_chords <- function() {
        "V"         =a(c( 7,11,14)   ,tonic=0, name='V'),
        "vi"        =a(c( 9,12,16)   ,tonic=0, name='vi'),
        "vii\u00B0" =a(c(11,14,17)   ,tonic=0, name='vii\u00B0'),
-       "VIII"      =a(c( 0, 4, 7)+12,tonic=0, name='VIII')
+       "VIII"      =a(c( 0, 4, 7)+12,tonic=0, name='VIII'),
+       "I"         =a(c( 0, 4, 7),tonic=0, include_label = FALSE)
   )
 }
 mixolydian_tonic_chords <- function() {
