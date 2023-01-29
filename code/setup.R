@@ -3,7 +3,6 @@ library(magrittr)
 library(dplyr)
 library(purrr)
 library(ggplot2)
-library(viridis)
 source('data/chords.R')
 
 plot_consonance_dissonance_major_minor <- function(chords,chords_name,include_path=FALSE,variable_point_size=FALSE) {

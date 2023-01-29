@@ -119,6 +119,8 @@ text(combo.consonance.data$consonance_dissonance,combo.consonance.data$n,combo.c
 
 heatmap.data = chord.combinations %>% group_by(major_minor,consonance_dissonance) %>%
   summarise(n=n())
-ggplot(heatmap.data,aes(x=major_minor,y=consonance_dissonance,color=n)) +
-  geom_point(size=4) + theme_bw() +
+p = ggplot(heatmap.data,aes(x=major_minor,y=consonance_dissonance,color=n)) +
+  geom_point(size=4) + theme_bw() + ggtitle('Heat Map Chord Frequency')
   scale_colour_continuous(direction=-1, trans='log10', type='viridis')
+
+save_auditory_plots(p,'results/plots')
