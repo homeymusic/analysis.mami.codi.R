@@ -1,8 +1,14 @@
 source('code/setup.R')
 
+chord.combinations.by.length <- readRDS('data/chord.combinations.RDS')
+chord.combinations <- chord.combinations.by.length %>% bind_rows
+distinct.chord.combinations <- chord.combinations %>%
+  distinct(major_minor, consonance_dissonance, .keep_all = TRUE)
+
 ###
-# a list of chord combos grouped by number of pitches in each chord
 # code used to generate the chord combinations stored in RDS file
+#
+# a list of chord combos grouped by number of pitches in each chord
 #
 # chord.combinations = lapply(1:12,function(chord_length) {
 #   print(chord_length)
@@ -15,7 +21,6 @@ source('code/setup.R')
 #
 # saveRDS(chord.combinations,file='data/chord.combinations.RDS')
 #
-chord.combinations.by.length <- readRDS('data/chord.combinations.RDS')
 
 stats = chord.combinations.by.length %>% seq_along %>% lapply(function(i) {
   tibble::tibble_row(
@@ -40,10 +45,6 @@ plot(stats$major_minor_range, stats$consonance_dissonance_range)
 text(stats$major_minor_range, stats$consonance_dissonance_range, stats$chord_length,-1)
 abline(a=0,b=1)
 
-###
-# all chords combined into one tibble
-#
-chord.combinations <- chord.combinations.by.length %>% bind_rows
 # most major chords
 chord.combinations %>% arrange(desc(major_minor),desc(consonance_dissonance))
 # most minor chords
@@ -67,8 +68,6 @@ codi.min = chord.combinations$consonance_dissonance %>% min
 
 # all chord combinations versus unique major-minor and consonance-dissonance
 num.chord.combinations <- chord.combinations %>% nrow
-distinct.chord.combinations <- chord.combinations %>%
-  distinct(major_minor, consonance_dissonance, .keep_all = TRUE)
 num.distinct.chord.combinations <- distinct.chord.combinations %>% nrow
 
 # percent unique
