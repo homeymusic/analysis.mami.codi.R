@@ -14,6 +14,8 @@ stats = chord.combinations %>% seq_along %>% lapply(function(i) {
   )
 }) %>% bind_rows
 
+stats <- tibble::rowid_to_column(stats,"chord_length")
+
 major_minor_range = (stats$major_minor_max %>% max) -
   (stats$major_minor_min %>% min)
 consonance_dissonance_range = (stats$consonance_dissonance_max %>% max) -
@@ -21,7 +23,13 @@ consonance_dissonance_range = (stats$consonance_dissonance_max %>% max) -
 paste('ma.mi / co.di:',major_minor_range / consonance_dissonance_range)
 paste('co.di / ma.mi:',consonance_dissonance_range / major_minor_range)
 
+plot(stats$major_minor_range, stats$consonance_dissonance_range)
+text(stats$major_minor_range, stats$consonance_dissonance_range, stats$chord_length,-1)
+abline(a=0,b=1)
+
+combos <- chord.combinations %>% bind_rows
 # example of most major chord is {0,3,6,10} with 0 tonic ma.mi: 2.29 co.di: 2.29
+combos %>% arrange(desc(major_minor),desc(consonance_dissonance),)
 chord.combinations[[4]] %>% filter(major_minor > 2.2)
 
 # example of most minor chord is {0,4,7,10} with 10 as tonic ma.mi: -2.29 co.di: 2.29
@@ -47,5 +55,4 @@ a(c(0:12))
 # low  = combn(0:12,1,function(pitches){auditory(pitches,tonic=0)},simplify = FALSE) %>% bind_rows
 # high = combn(0:12,1,function(pitches){auditory(pitches,tonic=12)},simplify = FALSE) %>% bind_rows
 # chord.combinations[[1]] <- bind_rows(low, high)
-#
 # saveRDS(chord.combinations,file='data/chord.combinations.RDS')
