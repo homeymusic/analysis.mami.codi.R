@@ -134,3 +134,5 @@ augmented_triad$consonance_dissonance
 chromatic$consonance_dissonance
 (octave$consonance_dissonance - heatmap.data$consonance_dissonance %>% min) / 2
 
+chord.combinations %>% filter(consonance_dissonance<(-0.79))
+
