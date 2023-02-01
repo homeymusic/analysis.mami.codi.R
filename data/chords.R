@@ -252,28 +252,28 @@ diatonic_triads <- function() {
 major_triad_progression <- function(){
   major_triad = c(0,4,7)
   list(
-    a(major_triad  , tonic=0, name='I'),
-    a(major_triad+5, tonic=0, name='IV'),
-    a(major_triad+7, tonic=0, name='V'),
-    a(major_triad  , tonic=0, name='I', include_label=FALSE)
+    a(major_triad   %>% sort, tonic=0, name='I'),
+    a(major_triad+5 %>% sort, tonic=0, name='IV'),
+    a(major_triad+7 %>% sort, tonic=0, name='V'),
+    a(major_triad   %>% sort, tonic=0, name='I', include_label=FALSE)
   )
 }
 minor_triad_progression <- function(){
   minor_triad = c(0,3,7)
   list(
-    a(minor_triad  , tonic=0, name='i'),
-    a(minor_triad+5, tonic=0, name='iv'),
-    a(minor_triad+7, tonic=0, name='v'),
-    a(minor_triad  , tonic=0, name='i', include_label=FALSE)
+    a(minor_triad   %>% sort, tonic=0, name='i'),
+    a(minor_triad+5 %>% sort, tonic=0, name='iv'),
+    a(minor_triad+7 %>% sort, tonic=0, name='v'),
+    a(minor_triad   %>% sort, tonic=0, name='i', include_label=FALSE)
   )
 }
 phrygian_triad_progression <- function(){
   phrygian_triad = -c(0,4,7)
   list(
-    a(phrygian_triad  , tonic=0, name='-i'),
-    a(phrygian_triad-5, tonic=0, name='-iv'),
-    a(phrygian_triad-7, tonic=0, name='-v'),
-    a(phrygian_triad  , tonic=0, name='-i', include_label=FALSE)
+    a(phrygian_triad   %>% sort, tonic=0, name='-i'),
+    a(phrygian_triad-5 %>% sort, tonic=0, name='-iv'),
+    a(phrygian_triad-7 %>% sort, tonic=0, name='-v'),
+    a(phrygian_triad   %>% sort, tonic=0, name='-i', include_label=FALSE)
   )
 }
 voice_leading_progression <- function(){
