@@ -113,7 +113,7 @@ text(combo.consonance.data$consonance_dissonance,combo.consonance.data$n,combo.c
 
 
 heatmap.data = chord.combinations %>% group_by(major_minor,consonance_dissonance) %>%
-  summarise(n=n(),name=last(integer_name))
+  summarise(n=n(),name=last(pitch.semitones))
 plot(heatmap.data$major_minor,heatmap.data$consonance_dissonance)
 text(heatmap.data$major_minor,heatmap.data$consonance_dissonance,
      heatmap.data$name,pos=3)
@@ -133,6 +133,4 @@ minor_second$consonance_dissonance
 augmented_triad$consonance_dissonance
 chromatic$consonance_dissonance
 (octave$consonance_dissonance - heatmap.data$consonance_dissonance %>% min) / 2
-
-chord.combinations %>% filter(consonance_dissonance<(-0.79))
 
