@@ -1,10 +1,5 @@
 source('code/setup.R')
 
-chord.combinations.by.length <- readRDS('data/chord.combinations.RDS')
-chord.combinations <- chord.combinations.by.length %>% bind_rows
-distinct.chord.combinations <- chord.combinations %>%
-  distinct(major_minor, consonance_dissonance, .keep_all = TRUE)
-
 ###
 # code used to generate the chord combinations stored in RDS file
 #
@@ -21,6 +16,11 @@ distinct.chord.combinations <- chord.combinations %>%
 #
 # saveRDS(chord.combinations,file='data/chord.combinations.RDS')
 #
+
+chord.combinations.by.length <- readRDS('data/chord.combinations.RDS')
+chord.combinations <- chord.combinations.by.length %>% bind_rows
+distinct.chord.combinations <- chord.combinations %>%
+  distinct(major_minor, consonance_dissonance, .keep_all = TRUE)
 
 stats = chord.combinations.by.length %>% seq_along %>% lapply(function(i) {
   tibble::tibble_row(
@@ -43,7 +43,7 @@ paste('ma.mi / co.di:',major_minor_range / consonance_dissonance_range)
 paste('co.di / ma.mi:',consonance_dissonance_range / major_minor_range)
 plot(stats$major_minor_range, stats$consonance_dissonance_range)
 text(stats$major_minor_range, stats$consonance_dissonance_range,
-     stats$chord_length,pos=3)
+     stats$chord_length,pos=3, family='Arial Unicode MS')
 abline(a=0,b=1)
 
 # most major chords
@@ -78,7 +78,7 @@ plot(distinct.chord.combinations$major_minor,
      distinct.chord.combinations$consonance_dissonance)
 text(distinct.chord.combinations$major_minor,
      distinct.chord.combinations$consonance_dissonance,
-     distinct.chord.combinations$name.semitones, pos=3)
+     distinct.chord.combinations$name.semitones, pos=3, family='Arial Unicode MS')
 
 p = auditory_plot(distinct.chord.combinations,c('major_minor','consonance_dissonance'),
                   title='Distinct Chord Combinations',
@@ -110,14 +110,15 @@ combo.consonance.data %>% summary
 plot(combo.consonance.data$consonance_dissonance,combo.consonance.data$n)
 plot((combo.consonance.data %>% arrange(desc(n)))$n)
 plot(combo.consonance.data$consonance_dissonance,combo.consonance.data$n,log='y')
-text(combo.consonance.data$consonance_dissonance,combo.consonance.data$n,combo.consonance.data$name,pos=3,log='y')
-
+text(combo.consonance.data$consonance_dissonance,
+     combo.consonance.data$n,combo.consonance.data$name,
+     pos=3,log='y', family='Arial Unicode MS')
 
 heatmap.data = chord.combinations %>% group_by(major_minor,consonance_dissonance) %>%
-  summarise(n=n(),name=last(pitch.semitones))
+  summarise(n=n(),name=last(name.semitones))
 plot(heatmap.data$major_minor,heatmap.data$consonance_dissonance)
 text(heatmap.data$major_minor,heatmap.data$consonance_dissonance,
-     heatmap.data$name,pos=3)
+     heatmap.data$name,pos=3, family='Arial Unicode MS')
 p = ggplot(heatmap.data,aes(x=major_minor,y=consonance_dissonance,color=n)) +
   geom_point(size=2) + theme_bw() + ggtitle('Distinct Chord Combinations Heat Map') +
   scale_colour_continuous(direction=-1, trans='log10', type='viridis')

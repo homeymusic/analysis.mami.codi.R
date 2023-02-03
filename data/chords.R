@@ -16,6 +16,16 @@ core_pitches_high_tonic <- function() {
   dplyr::bind_rows(purrr::map2(intervals$integer_position,intervals$name,
                                ~a(.x,name=.y,tonic=12)))
 }
+core_pitches_low_tonic_harmonics <- function() {
+  intervals = interval_components()
+  dplyr::bind_rows(purrr::map2(intervals$integer_position,intervals$name,
+                               ~a(.x,name=.y,tonic=0,num_harmonics=5L)))
+}
+core_pitches_high_tonic_harmonics <- function() {
+  intervals = interval_components()
+  dplyr::bind_rows(purrr::map2(intervals$integer_position,intervals$name,
+                               ~a(.x,name=.y,tonic=12,num_harmonics=5L)))
+}
 major_triads <- function() {
   list(
     "root position"=a(c(0,4,7)%>%sort,

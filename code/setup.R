@@ -16,3 +16,6 @@ plot_consonance_dissonance_major_minor <- function(chords,chords_name,include_pa
                   variable_point_size=variable_point_size)
   save_auditory_plots(p,'results/plots')
 }
+
+C4.MIDI  <- 60L
+C4.HERTZ <- 261.63
