@@ -15,7 +15,6 @@ source('code/setup.R')
 # })
 #
 # saveRDS(chord.combinations,file='data/chord.combinations.RDS')
-#
 
 chord.combinations.by.length <- readRDS('data/chord.combinations.RDS')
 chord.combinations <- chord.combinations.by.length %>% bind_rows
