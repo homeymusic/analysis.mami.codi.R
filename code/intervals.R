@@ -6,3 +6,4 @@ plot_consonance_dissonance_major_minor(core_pitches_high_tonic(),'Intervals with
 plot_consonance_dissonance_major_minor(
   dplyr::bind_rows(core_pitches_low_tonic(),core_pitches_high_tonic())
   ,'Intervals with High and Low Tonic')
+

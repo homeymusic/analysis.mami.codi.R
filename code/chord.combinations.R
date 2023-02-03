@@ -14,7 +14,7 @@ distinct.chord.combinations <- chord.combinations %>%
 #   print(chord_length)
 #   chords = lapply(1:chord_length,function(tonic_index) {
 #     combn(0:12,chord_length,function(pitches) {
-#       auditory(pitches,pitches[tonic_index])
+#       a(pitches,pitches[tonic_index])
 #     }, simplify=FALSE)
 #   }) %>% bind_rows
 # })
@@ -42,7 +42,8 @@ consonance_dissonance_range = (stats$consonance_dissonance_max %>% max) -
 paste('ma.mi / co.di:',major_minor_range / consonance_dissonance_range)
 paste('co.di / ma.mi:',consonance_dissonance_range / major_minor_range)
 plot(stats$major_minor_range, stats$consonance_dissonance_range)
-text(stats$major_minor_range, stats$consonance_dissonance_range, stats$chord_length,-1)
+text(stats$major_minor_range, stats$consonance_dissonance_range,
+     stats$chord_length,pos=3)
 abline(a=0,b=1)
 
 # most major chords
@@ -77,7 +78,7 @@ plot(distinct.chord.combinations$major_minor,
      distinct.chord.combinations$consonance_dissonance)
 text(distinct.chord.combinations$major_minor,
      distinct.chord.combinations$consonance_dissonance,
-     distinct.chord.combinations$integer_name, pos=3)
+     distinct.chord.combinations$name.semitones, pos=3)
 
 p = auditory_plot(distinct.chord.combinations,c('major_minor','consonance_dissonance'),
                   title='Distinct Chord Combinations',
@@ -89,10 +90,10 @@ p
 
 cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
     method='pearson')
-cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
-    method='kendall')
-cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
-    method='spearman')
+# cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
+#     method='kendall')
+# cor(chord.combinations$consonance.low, chord.combinations$consonance.high,
+#     method='spearman')
 
 cor(distinct.chord.combinations$consonance.low, distinct.chord.combinations$consonance.high,
     method='pearson')
@@ -102,7 +103,7 @@ cor(distinct.chord.combinations$consonance.low, distinct.chord.combinations$cons
     method='spearman')
 
 combo.consonance.data = chord.combinations %>% group_by(consonance_dissonance) %>%
-  summarise(n=n(),name=first(integer_name))
+  summarise(n=n(),name=first(name.semitones))
 
 combo.consonance.data %>% summary
 
