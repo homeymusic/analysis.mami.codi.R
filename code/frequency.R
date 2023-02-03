@@ -10,10 +10,18 @@ source('code/setup.R')
 two_octaves.hertz <- readRDS('data/two_octaves.hertz.RDS')
 
 p = auditory_plot(two_octaves.hertz,c('major_minor','consonance_dissonance'),
-                  title='Frequency Two Octaves',
+                  title='Frequency Two Octaves as mami.codi',
                   xlab='Minor and Major',
                   ylab="Dissonance and Consonance",
                   include_text=FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+p=auditory_plot(two_octaves.hertz,c('pitch.hertz','consonance_dissonance'),
+                title='Intervals Frequency versus Consonance',
+                xlab='Average Frequency (Hz)',
+                ylab="Dissonance and Consonance",
+                x_symmetrical=FALSE,x_log2=TRUE, include_text=FALSE)
 save_auditory_plots(p,'results/plots')
 p
 
