@@ -15,6 +15,7 @@ plot_consonance_dissonance_major_minor <- function(chords,chords_name,include_pa
                   ylab="Dissonance and Consonance",
                   variable_point_size=variable_point_size)
   save_auditory_plots(p,'results/plots')
+  p
 }
 
 C4.MIDI  <- 60L

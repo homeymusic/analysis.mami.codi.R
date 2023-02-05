@@ -1,10 +1,120 @@
 source('code/setup.R')
 
-plot_consonance_dissonance_major_minor(core_pitches_low_tonic_harmonics(),'Intervals with Harmonics and Low Tonic')
-plot_consonance_dissonance_major_minor(core_pitches_high_tonic_harmonics(),'Intervals with Harmonics and High Tonic')
-plot_consonance_dissonance_major_minor(
-  dplyr::bind_rows(core_pitches_low_tonic_harmonics(),core_pitches_high_tonic_harmonics())
-  ,'Intervals with Harmonics and High and Low Tonic')
+for (h in 0:12) {
+  plot_consonance_dissonance_major_minor(
+    core_pitches(num_harmonics=h), paste('Intervals Low Tonic',h,'Harmonics'))
+}
+
+fifteen_semitones.0harmonics.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200))
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.0harmonics.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 0 Harmonics',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+# 5 harmonics
+
+fifteen_semitones.5harmonics.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200), num_harmonics = 5)
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.5harmonics.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 5 Harmonics',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+fifteen_semitones.5stretched.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200), num_harmonics = 5,
+                 stretching = 2.1)
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.5stretched.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 5 Stretched',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+fifteen_semitones.5compressed.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200), num_harmonics = 5,
+                 stretching = 1.9)
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.5compressed.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 5 Compressed',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+# 10 harmonics
+
+fifteen_semitones.10harmonics.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200), num_harmonics = 10)
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.10harmonics.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 10 Harmonics',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+fifteen_semitones.10stretched.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200), num_harmonics = 10,
+                 stretching = 2.1)
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.10stretched.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 10 Stretched',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+fifteen_semitones.10compressed.hertz = 0:1500 %>% lapply(function(cents) {
+  auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200), num_harmonics = 10,
+                 stretching = 1.9)
+}) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+
+p=auditory_plot(
+  fifteen_semitones.10compressed.hertz,c('pitch.hertz','consonance_dissonance'),
+  title='Frequency 10 Compressed',
+  xlab='Frequency (Hz)',
+  ylab="Dissonance and Consonance", include_text = FALSE)
+save_auditory_plots(p,'results/plots')
+p
+
+p=auditory_plot(core_pitches(num_harmonics = 10),
+                c('pitch.hertz','consonance_dissonance'),
+                title='10 Harmonics',
+                xlab='Frequency (Hz)',
+                ylab="Dissonance and Consonance",
+                x_symmetrical=FALSE,x_log2=TRUE)
+save_auditory_plots(p,'results/plots')
+p
+
+p=auditory_plot(core_pitches(num_harmonics = 10, stretching = 2.1),
+                c('pitch.hertz','consonance_dissonance'),
+                title='10 Stretched',
+                xlab='Frequency (Hz)',
+                ylab="Dissonance and Consonance",
+                x_symmetrical=FALSE,x_log2=TRUE)
+save_auditory_plots(p,'results/plots')
+p
+
 
 # code to create the data
 #

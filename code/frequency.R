@@ -25,7 +25,7 @@ p=auditory_plot(two_octaves.hertz,c('pitch.hertz','consonance_dissonance'),
 save_auditory_plots(p,'results/plots')
 p
 
-plot(two_octaves.hertz$pitch.hertz,two_octaves.hertz$consonance_dissonance,
+lplot(two_octaves.hertz$pitch.hertz,two_octaves.hertz$consonance_dissonance,
      log='x', pch=20)
 
 two_octaves.semitones = -12:12 %>% lapply(function(semitone) {
