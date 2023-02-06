@@ -4,6 +4,8 @@ library(magrittr)
 library(dplyr)
 library(purrr)
 library(ggplot2)
+library(zoo)
+
 source('data/chords.R')
 
 plot_consonance_dissonance_major_minor <- function(chords,chords_name,include_path=FALSE,variable_point_size=FALSE) {
@@ -18,5 +20,9 @@ plot_consonance_dissonance_major_minor <- function(chords,chords_name,include_pa
   p
 }
 
+B3.HERTZ <- 246.94
+
 C4.MIDI  <- 60L
 C4.HERTZ <- 261.63
+
+
