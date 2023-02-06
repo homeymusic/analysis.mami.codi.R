@@ -2,53 +2,45 @@ source('code/setup.R')
 
 create_data = TRUE
 create_plots = TRUE
-major_only = FALSE
-minor_only = FALSE
 
-for (h in 0:12) {
-  for (s in c(1.9,2.0,2.1)) {
-    if (h == 0 && s != 2.0) {
-      # skip it
-    } else {
-      filename = paste0('data/harmonics/',
-                        if (major_only) {'major.only.'}
-                        else if (minor_only)  {'minor.only.'}
-                        ,'h.',h,'.s.',s,'.RDS')
-      print(filename)
+for (t in c(C4.HERTZ,C5.HERTZ)) {
+  for (h in 0:12) {
+    for (s in c(1.9,2.0,2.1)) {
+      if (h == 0 && s != 2.0) {
+        # skip it
+      } else {
+        title = paste0('t.',t,'.h.',h,'.s.',s)
+        filename = paste0('data/harmonics/',title,'.RDS')
+        print(filename)
 
-      if (create_data) {
-        sweep = 0:1700 %>% lapply(function(cents) {
-          auditory.hertz(B3.HERTZ * 2 ^ (cents / 1200),
-                         tonic.hertz = C4.HERTZ,
-                         num_harmonics = h,
-                         stretching = s)
-        }) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
+        if (create_data) {
+          sweep = 0:1700 %>% lapply(function(cents) {
+            sweeper.hertz = B3.HERTZ * 2 ^ (cents / 1200)
+            auditory.hertz(c(t,sweeper.hertz),
+                           tonic.hertz = t,
+                           num_harmonics = h,
+                           stretching = s,
+                           sweeper.hertz = sweeper.hertz)
+          }) %>% bind_rows %>% tidyr::drop_na(major_minor, consonance_dissonance)
 
-        if (major_only) {
-          sweep = sweep %>% dplyr::filter(major_minor > 0)
-        } else if (minor_only) {
-          sweep = sweep %>% dplyr::filter(major_minor < 0)
+          saveRDS(sweep,file=filename)
+        } else {
+          sweep = readRDS(filename)
         }
 
-        saveRDS(sweep,file=filename)
-      } else {
-        sweep = readRDS(filename)
-      }
+        for (w in seq(from=1,to=113,by=2)) {
+          plot_title = paste0(title,'.w.',w)
+          print(plot_title)
+          if (create_plots) {
+            p=auditory_plot(
+              sweep,c('sweeper.hertz','consonance_dissonance'),
+              title=plot_title,
+              xlab='Semitones',
+              ylab="Dissonance and Consonance", include_text = FALSE,
+              moving_average=w)
 
-      for (w in seq(from=1,to=101,by=2)) {
-        plot_title = paste0(if (major_only) {'major.only.'}
-                            else if (minor_only)  {'minor.only.'},
-                            'h.',h,'.s.',s,'.w.',w)
-        print(plot_title)
-        if (create_plots) {
-          p=auditory_plot(
-            sweep,c('pitch.hertz','consonance_dissonance'),
-            title=plot_title,
-            xlab='Semitones',
-            ylab="Dissonance and Consonance", include_text = FALSE,
-            moving_average=w)
-
-          save_auditory_plots(p,'results/plots/harmonics',filetypes='pdf')
+            save_auditory_plots(p,'results/plots/harmonics',filetypes='pdf')
+          }
         }
       }
     }
