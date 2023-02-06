@@ -47,9 +47,37 @@ for (t in c(C4.HERTZ,C5.HERTZ)) {
   }
 }
 
-# TODO: figure out moving average
-# function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 2)}
-# OR use zoo https://www.storybench.org/how-to-calculate-a-rolling-average-in-r/
+# combine C4 and C5 results for h=10 and w=37
+h=10
+w=37
+
+for (s in c(1.9,2.0,2.1)) {
+  t = C4.HERTZ
+  title = paste0('t.',t,'.h.',h,'.s.',s)
+  filename = paste0('data/harmonics/',title,'.RDS')
+  C4_results = readRDS(filename)
+
+  t = C5.HERTZ
+  title = paste0('t.',t,'.h.',h,'.s.',s)
+  filename = paste0('data/harmonics/',title,'.RDS')
+  C5_results = readRDS(filename)
+
+  combined_results = bind_rows(C4_results,C5_results) %>%
+    filter(tonic.hertz != sweeper.hertz)
+
+  title = paste0('t.combined.h.',h,'.s.',s)
+  plot_title = paste0(title,'.w.',w)
+  print(plot_title)
+  p=auditory_plot(
+    combined_results,c('sweeper.hertz','consonance_dissonance'),
+    title=plot_title,
+    xlab='Semitones',
+    ylab="Dissonance and Consonance", include_text = FALSE,
+    moving_average=w)
+
+  save_auditory_plots(p,'results/plots/harmonics',filetypes='pdf')
+
+}
 
 for (h in 0:12) {
   plot_consonance_dissonance_major_minor(
