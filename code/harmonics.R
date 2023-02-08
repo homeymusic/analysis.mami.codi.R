@@ -3,8 +3,8 @@ source('code/setup.R')
 create_data = TRUE
 create_plots = TRUE
 
-for (t in c(C4.HERTZ,C5.HERTZ)) {
-  for (h in 0:12) {
+for (t in c(C4.HERTZ)) {
+  for (h in 10) {
     for (s in c(1.9,2.0,2.1)) {
       if (h == 0 && s != 2.0) {
         # skip it
@@ -28,7 +28,7 @@ for (t in c(C4.HERTZ,C5.HERTZ)) {
           sweep = readRDS(filename)
         }
 
-        for (w in seq(from=1,to=113,by=2)) {
+        for (w in 37) {
           plot_title = paste0(title,'.w.',w)
           print(plot_title)
           if (create_plots) {

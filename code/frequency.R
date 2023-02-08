@@ -1,13 +1,13 @@
 source('code/setup.R')
 
-# code to create the data
-#
-# two_octaves.hertz = -1200:1200 %>% lapply(function(cents) {
-#   auditory.hertz(C4.HERTZ * 2 ^ (cents / 1200))
-# }) %>% bind_rows
-# saveRDS(two_octaves.hertz,file='data/two_octaves.hertz.RDS')
+#code to create the data
 
-two_octaves.hertz <- readRDS('data/two_octaves.hertz.RDS')
+two_octaves.hertz = -1200:1200 %>% lapply(function(cents) {
+  auditory.hertz(c(C4.HERTZ, C4.HERTZ * 2 ^ (cents / 1200)), d=0.01)
+}) %>% bind_rows
+saveRDS(two_octaves.hertz,file='data/two_octaves.hertz.0.01.RDS')
+
+#two_octaves.hertz <- readRDS('data/two_octaves.hertz.RDS')
 
 p = auditory_plot(two_octaves.hertz,c('major_minor','consonance_dissonance'),
                   title='Frequency Two Octaves as mami.codi',
@@ -21,11 +21,11 @@ p=auditory_plot(two_octaves.hertz,c('pitch.hertz','consonance_dissonance'),
                 title='Intervals Frequency versus Consonance',
                 xlab='Average Frequency (Hz)',
                 ylab="Dissonance and Consonance",
-                x_symmetrical=FALSE,x_log2=TRUE, include_text=FALSE)
+                x_symmetrical=FALSE, include_text=FALSE)
 save_auditory_plots(p,'results/plots')
 p
 
-lplot(two_octaves.hertz$pitch.hertz,two_octaves.hertz$consonance_dissonance,
+plot(two_octaves.hertz$pitch.hertz,two_octaves.hertz$consonance_dissonance,
      log='x', pch=20)
 
 two_octaves.semitones = -12:12 %>% lapply(function(semitone) {
