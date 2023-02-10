@@ -16,6 +16,26 @@ for (s in s_options) {
 filename = paste0(dir, 'Bonang dyads/models/mami.codi.rds')
 bonang = readRDS(filename)
 
+mami.codi.stretched = stretched_dyads[['Stretched']]$full$raw_profile$interval %>% lapply(function(semitone) {
+    pitch.hertz = C4.HERTZ * 2 ^ (semitone / 12)
+    auditory.hertz(c(C4.HERTZ,pitch.hertz),C4.HERTZ,
+                   num_harmonics=10,stretching=2.1,
+                   sweeper.hertz = pitch.hertz)
+  }) %>% bind_rows
+
+p=auditory_plot(mami.codi.stretched,c('sweeper.hertz','consonance_dissonance'),
+                title='Stretched Dyads',
+                xlab='Frequency (Hz)',
+                ylab="Dissonance and Consonance",
+                x_symmetrical=FALSE, include_text=FALSE)
+
+smooth = stretched_dyads[['Stretched']]$full$profile %>% mutate(pitch.hertz=C4.HERTZ*2^(interval / 12))
+p = p + ggplot2::geom_line(data=smooth,color='white', linewidth=1,
+                           ggplot2::aes(x=pitch.hertz,
+                                        y=output))
+
+save_auditory_plots(p,'results/plots')
+
 for (name in names(stretched_dyads)) {
   p = stretched_dyads[[name]]$full$plot() + ggplot2::scale_x_continuous(breaks = 0:15) +
     ggplot2::ggtitle(name)
