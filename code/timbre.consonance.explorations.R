@@ -17,6 +17,14 @@ mami.codi.results = tibble::tibble(pearson = numeric(),
                            experiment = character(),
                            filename = character())
 
+homey.brown       = '#664433'
+homey.cream       = '#F3DDAB'
+homey.dark.cream  = '#7F745A'
+homey.blue        = '#ABDAF3'
+homey.red         = '#FF5500'
+homey.maize       = '#F3A904'
+homey.green       = '#73DE73'
+
 for (file in files) {
   filename = paste0(mami.codi.dir,file)
   mami.codi = readRDS(filename)
@@ -36,29 +44,44 @@ for (file in files) {
   )
 }
 
-filename = (mami.codi.results %>% dplyr::arrange(desc(pearson)))$filename[1]
+print(plot(behavior$profile$interval, behavior$profile$rating,
+           pch=4,col=homey.green))
+print(abline(v = 0:15,lty = 2, col = "gray"))
+print(axis(1, at=0:15))
 
-mami.codi = readRDS(filename)
+plot_mami.codi <- function(result) {
+  mami.codi = readRDS(result$filename)
 
-homey.brown       = '#664433'
-homey.cream       = '#F3DDAB'
-homey.dark.cream  = '#7F745A'
-homey.blue        = '#ABDAF3'
-homey.red         = '#FF5500'
-homey.maize       = '#F3A904'
-homey.green       = '#73DE73'
+  print(plot(mami.codi$full$profile$interval, mami.codi$full$profile$output,
+             col=homey.brown, pch=1,
+             main=paste(result$label,'cor:',result$pearson %>% round(2))))
+  print(abline(v = 0:15,lty = 2, col = "gray"))
+  print(axis(1, at=0:15))
+}
 
-plot(mami.codi$full$profile$interval, mami.codi$full$profile$output,
-     col=homey.brown, pch=1)
-abline(v = 0:15,lty = 2, col = "gray")
-axis(1, at=0:15)
+results = mami.codi.results %>% dplyr::arrange(desc(pearson))
+for (rank in 10:1) {
+  # best
+  plot_mami.codi(results %>% dplyr::slice(rank))
+}
 
-plot(behavior$profile$interval, behavior$profile$rating,
-       pch=4,col=homey.green)
-abline(v = 0:15,lty = 2, col = "gray")
-axis(1, at=0:15)
+print(results, n=50)
+#
+# results = mami.codi.results %>% dplyr::arrange(desc(pearson)) %>%
+#   dplyr::filter(grepl('mami.codi.m.1.t.1.h.10.l.-1', label))
+#
+# for (rank in 24:1) {
+#   # best
+#   plot_mami.codi(results %>% dplyr::slice(rank))
+# }
+#
+# print(results,n=Inf)
 
-plot(behavior$profile$rating, mami.codi$full$profile$output,
-     pch=10,col=homey.red)
-abline(v = 0:15,lty = 2, col = "gray")
-axis(1, at=0:15)
+#
+# plot_mami.codi(ref_4.1 %>% dplyr::slice(2))
+
+# correlation plot
+# print(plot(behavior$profile$rating, mami.codi$full$profile$output,
+#      pch=10,col=homey.red, main=results$label[rank]))
+# print(abline(v = 0:15,lty = 2, col = "gray"))
+# print(axis(1, at=0:15))
