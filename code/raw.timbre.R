@@ -95,18 +95,11 @@ for (experiment in experiments[-1]) {
   }
 }
 
-range = list()
-for (experiment in experiments) {
-  results = mami.codi.results[experiment]
-  range[experiment] = max(results) - min(results)
-}
-
 mami.codi.results <- mami.codi.results %>% dplyr::mutate(
   composite = (bonang + compressed + harmonic + stretched))
 
 tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label))
-plot(tuning$resolution,tuning$composite,log='x')
-plot(1/tuning$resolution,tuning$composite,log='x')
+print(plot(tuning$resolution,tuning$composite,log='x'))
 
 homey.brown       = '#664433'
 homey.cream       = '#F3DDAB'
@@ -142,8 +135,7 @@ plot_mami.codi <- function(result, experiment) {
   print(plot(mami.codi$full$raw_profile$interval,
              mami.codi$full$raw_profile$output,
              col=homey.dark.cream,
-             main=paste(experiment,
-                        'low.ref:-1.octave high.ref:2.octaves d:1.36%')))
+             main=paste(experiment,'resolution:',result$resolution,'pearson:',result$composite)))
   print(lines(mami.codi$full$profile$interval, mami.codi$full$profile$output,
              col=homey.red, lwd = 3))
   print(abline(v = 0:15,lty = 2, col = "gray"))
@@ -159,7 +151,7 @@ for (rank in 1:1) {
   }
 }
 
-print(results, n=30)
+print(results, n=100)
 
 # results = mami.codi.results %>% dplyr::arrange(desc(pearson)) %>%
 #   dplyr::filter(grepl('h.2.l.-2', label))
