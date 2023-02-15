@@ -1,105 +1,145 @@
 # TODO: create creaet the big 4 plots in Homey Style with
 # major-minor and consonance-dissonance
 
-# TIDI: find a way to store the mami.codi tibble on the RDS object
-
 source('code/setup.R')
 
-mami.codi.results = tibble::tibble(bonang = numeric(),
-                                   compressed = numeric(),
-                                   harmonic = numeric(),
-                                   stretched = numeric(),
-                                   composite = numeric(),
-                                   label = character(),
-                                   metric = numeric(),
-                                   tonic_selector = numeric(),
-                                   high_register = numeric(),
-                                   low_register = numeric(),
-                                   resolution = numeric())
 
-experiments = c('harmonic','stretched','compressed','bonang')
-canonical.experiment = experiments[1]
-# TODO: add harmonic once it's done: experiments = c('bonang','comp ressed','harmonic','stretched')
-data.dir = '/Users/landlessness/Documents/git/pmcharrison/timbre-and-consonance-paper/explorations/data/'
+mami.codi.results.rds = '/Users/landlessness/Documents/git/homeymusic/analysis.mami.codi.R/data/mami.codi.results.rds'
+mami.codi.results = NULL
 
-# make one experiment the canonical experiment
-canonical.models.dir = paste0(data.dir, canonical.experiment, '/models/')
-canonical.files = list.files(canonical.models.dir,pattern='.rds')
+if (FALSE) {
+  mami.codi.results = readRDS(mami.codi.results.rds)
+} else {
 
-print(paste('analyzing canonical experiment:',canonical.experiment))
-progress.bar = txtProgressBar(min = 1, max = length(canonical.files), initial = 1)
-p = 1
 
-for (canonical.file in canonical.files) {
+  mami.codi.results = tibble::tibble(bonang.dtw = numeric(),
+                                     compressed.dtw = numeric(),
+                                     harmonic.dtw = numeric(),
+                                     stretched.dtw = numeric(),
+                                     composite.dtw = numeric(),
+                                     bonang.pearson = numeric(),
+                                     compressed.pearson = numeric(),
+                                     harmonic.pearson = numeric(),
+                                     stretched.pearson = numeric(),
+                                     composite.pearson = numeric(),
+                                     label = character(),
+                                     metric = numeric(),
+                                     tonic_selector = numeric(),
+                                     high_register = numeric(),
+                                     low_register = numeric(),
+                                     resolution = numeric())
 
-  canonical.behavior.filename = paste0(data.dir, canonical.experiment, '/behaviour/profile.rds')
+  experiments = c('harmonic','stretched','compressed','bonang')
+  canonical.experiment = experiments[1]
+  # TODO: add harmonic once it's done: experiments = c('bonang','comp ressed','harmonic','stretched')
+  data.dir = '/Users/landlessness/Documents/git/pmcharrison/timbre-and-consonance-paper/explorations/data/'
+
+  # make one experiment the canonical experiment
+  canonical.models.dir = paste0(data.dir, canonical.experiment, '/models/')
+  canonical.files = list.files(canonical.models.dir,pattern='.rds')
+
+  print(paste('analyzing canonical experiment:',canonical.experiment))
+  progress.bar = txtProgressBar(min = 1, max = length(canonical.files), initial = 1)
+  p = 1
+
   canonical.behavior.filename = paste0(data.dir, canonical.experiment, '/behaviour/profile.rds')
   canonical.behavior = readRDS(canonical.behavior.filename)
 
-  canonical.model.filename = paste0(canonical.models.dir,canonical.file)
-  canonical.mami.codi = readRDS(canonical.model.filename)
+  for (canonical.file in canonical.files) {
 
-  label = canonical.mami.codi$full$model$label
-  checkmate::assert_true(paste0(label,'.rds') == canonical.file)
+    canonical.model.filename = paste0(canonical.models.dir,canonical.file)
+    canonical.mami.codi = readRDS(canonical.model.filename)
 
-  pearson = cor(canonical.behavior$profile$rating,
-                canonical.mami.codi$full$raw_profile$output,
-                method='pearson')
+    label = canonical.mami.codi$full$model$label
+    checkmate::assert_true(paste0(label,'.rds') == canonical.file)
 
-  mami.codi.results <- mami.codi.results %>% tibble::add_row (
-    "{canonical.experiment}" := pearson,
-    label = label,
-    metric = canonical.mami.codi$full$model$metric,
-    tonic_selector = canonical.mami.codi$full$model$tonic_selector,
-    high_register  = canonical.mami.codi$full$model$high_register,
-    low_register   = canonical.mami.codi$full$model$low_register,
-    resolution = canonical.mami.codi$full$model$resolution
-  )
-  p = p+1
-  setTxtProgressBar(progress.bar,p)
-}
 
-checkmate::assert_true(canonical.files %>% unique %>% length
-                       == mami.codi.results$label %>% unique %>% length)
+    # print(canonical.model.filename)
+    dtw = dtw(canonical.mami.codi$full$profile$output,
+              canonical.behavior$profile$rating,
+              distance_only=TRUE)$normalizedDistance
+    # print(paste('dtw:',dtw))
 
-for (experiment in experiments[-1]) {
-  print(paste('analyzing experiment:',experiment))
-  progress.bar = txtProgressBar(min = 1,
-                                max = nrow(mami.codi.results),
-                                initial = 1)
-
-  p=1
-
-  experiment.dir =  paste0(data.dir, experiment)
-  experiment.behavior.filename = paste0(experiment.dir, '/behaviour/profile.rds')
-  experiment.behavior = readRDS(experiment.behavior.filename)
-
-  experiment.models.dir = paste0(experiment.dir, '/models/')
-
-  for (i in 1:nrow(mami.codi.results)) {
-    label = mami.codi.results$label[i]
-    filename = paste0(experiment.models.dir,label,'.rds')
-    experiment.model.mami.codi = readRDS(filename)
-
-    pearson = cor(experiment.behavior$profile$rating,
-                  experiment.model.mami.codi$full$raw_profile$output,
+    pearson = cor(canonical.mami.codi$full$profile$output,
+                  canonical.behavior$profile$rating,
                   method='pearson')
+    # print(paste('pearson:',pearson))
 
-    mami.codi.results <- dplyr::rows_update(
-      mami.codi.results,
-      tibble::tibble(label=label,"{experiment}" := pearson),
-      by = 'label')
-
+    mami.codi.results <- mami.codi.results %>% tibble::add_row (
+      "{canonical.experiment}.dtw"     := dtw,
+      "{canonical.experiment}.pearson" := pearson,
+      label = label,
+      metric = canonical.mami.codi$full$model$metric,
+      tonic_selector = canonical.mami.codi$full$model$tonic_selector,
+      high_register  = canonical.mami.codi$full$model$high_register,
+      low_register   = canonical.mami.codi$full$model$low_register,
+      resolution = canonical.mami.codi$full$model$resolution
+    )
     p = p+1
     setTxtProgressBar(progress.bar,p)
   }
-}
 
-mami.codi.results <- mami.codi.results %>% dplyr::mutate(
-  composite = (bonang + compressed + harmonic + stretched))
+  checkmate::assert_true(canonical.files %>% unique %>% length
+                         == mami.codi.results$label %>% unique %>% length)
+
+  for (experiment in experiments[-1]) {
+    print(paste('analyzing experiment:',experiment))
+    progress.bar = txtProgressBar(min = 1,
+                                  max = nrow(mami.codi.results),
+                                  initial = 1)
+
+    p=1
+
+    experiment.dir =  paste0(data.dir, experiment)
+    experiment.behavior.filename = paste0(experiment.dir, '/behaviour/profile.rds')
+    experiment.behavior = readRDS(experiment.behavior.filename)
+
+    experiment.models.dir = paste0(experiment.dir, '/models/')
+
+    for (i in 1:nrow(mami.codi.results)) {
+      label = mami.codi.results$label[i]
+      filename = paste0(experiment.models.dir,label,'.rds')
+      experiment.model.mami.codi = readRDS(filename)
+
+      dtw = dtw(experiment.model.mami.codi$full$profile$output,
+                experiment.behavior$profile$rating,
+                distance_only=TRUE)$normalizedDistance
+
+      pearson = cor(experiment.model.mami.codi$full$profile$output,
+                    experiment.behavior$profile$rating,
+                    method='pearson')
+
+      mami.codi.results <- dplyr::rows_update(
+        mami.codi.results,
+        tibble::tibble(
+          label=label,
+          "{experiment}.dtw" := dtw,
+          "{experiment}.pearson" := pearson
+        ),
+        by = 'label')
+
+      p = p+1
+      setTxtProgressBar(progress.bar,p)
+    }
+  }
+
+  mami.codi.results <- mami.codi.results %>% dplyr::mutate(
+    composite.dtw = (bonang.dtw + compressed.dtw + harmonic.dtw + stretched.dtw),
+    composite.pearson = (bonang.pearson + compressed.pearson + harmonic.pearson + stretched.pearson))
+
+  saveRDS(mami.codi.results, mami.codi.results.rds)
+}
+composite.dtw.max = mami.codi.results$composite.dtw %>% max
+print(plot(composite.dtw.max- mami.codi.results$composite.dtw,mami.codi.results$composite.pearson))
 
 tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label))
-print(plot(tuning$resolution,tuning$composite,log='x'))
+tuning.composite.dtw.max = tuning$composite.dtw %>% max
+tuning = tuning %>% dplyr::arrange((tuning.composite.dtw.max-tuning$composite.dtw)*tuning$composite.pearson)
+print(plot(tuning$resolution,
+           (tuning.composite.dtw.max-tuning$composite.dtw)*tuning$composite.pearson,
+           log='x'))
+print(tuning,n=10)
+
 
 homey.brown       = '#664433'
 homey.cream       = '#F3DDAB'
@@ -109,20 +149,13 @@ homey.red         = '#FF5500'
 homey.maize       = '#F3A904'
 homey.green       = '#73DE73'
 
-# print(plot(behavior$profile$interval, behavior$profile$rating,
-#            pch=4,col=homey.green))
+# read one model
+# mami.codi = readRDS('/Users/landlessness/Documents/git/pmcharrison/timbre-and-consonance-paper/explorations/data/harmonic/models/mami.codi.m.1.t.1.h.2.l.-1.r.100.rds')
+# plot(mami.codi$full$profile$interval, mami.codi$full$profile$output,
+#      col=homey.brown, pch=1,main=paste(file))
 # print(abline(v = 0:15,lty = 2, col = "gray"))
 # print(axis(1, at=0:15))
 
-#
-# file = 'mami.codi.m.2.t.1.h.6.l.-1.r.100.rds'
-# filename = paste0(mami.codi.dir,file)
-# mami.codi = readRDS(filename)
-# plot(mami.codi$full$profile$interval, mami.codi$full$profile$output,
-#            col=homey.brown, pch=1,main=paste(file))
-# print(abline(v = 0:15,lty = 2, col = "gray"))
-# print(axis(1, at=0:15))
-#
 
 model.experiment.filename <- function(label, experiment) {
   paste0(data.dir, experiment, '/models/',label,'.rds')
@@ -135,17 +168,18 @@ plot_mami.codi <- function(result, experiment) {
   print(plot(mami.codi$full$raw_profile$interval,
              mami.codi$full$raw_profile$output,
              col=homey.dark.cream,
-             main=paste(experiment,'resolution:',result$resolution,'pearson:',result$composite)))
+             main=paste(experiment,'resolution:',result$resolution,'dtw:',result$composite.dtw)))
   print(lines(mami.codi$full$profile$interval, mami.codi$full$profile$output,
-             col=homey.red, lwd = 3))
+              col=homey.red, lwd = 3))
   print(abline(v = 0:15,lty = 2, col = "gray"))
   print(axis(1, at=0:15))
 }
 
 # winner so far: m1 t1 h2 l-1 r100
 
-results = mami.codi.results %>% dplyr::arrange(dplyr::desc(composite))
-for (rank in 1:1) {
+results = mami.codi.results %>%
+  dplyr::arrange(dplyr::desc((composite.dtw.max-composite.dtw) * composite.pearson))
+for (rank in 10:1) {
   for (experiment in experiments) {
     plot_mami.codi(results %>% dplyr::slice(rank),experiment)
   }
