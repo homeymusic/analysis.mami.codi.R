@@ -1,3 +1,8 @@
+# TODO: create creaet the big 4 plots in Homey Style with
+# major-minor and consonance-dissonance
+
+# TIDI: find a way to store the mami.codi tibble on the RDS object
+
 source('code/setup.R')
 
 mami.codi.results = tibble::tibble(bonang = numeric(),
@@ -99,6 +104,10 @@ for (experiment in experiments) {
 mami.codi.results <- mami.codi.results %>% dplyr::mutate(
   composite = (bonang + compressed + harmonic + stretched))
 
+tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label))
+plot(tuning$resolution,tuning$composite,log='x')
+plot(1/tuning$resolution,tuning$composite,log='x')
+
 homey.brown       = '#664433'
 homey.cream       = '#F3DDAB'
 homey.dark.cream  = '#7F745A'
@@ -133,8 +142,8 @@ plot_mami.codi <- function(result, experiment) {
   print(plot(mami.codi$full$raw_profile$interval,
              mami.codi$full$raw_profile$output,
              col=homey.dark.cream,
-             main=paste(experiment,result$label,'cor:',
-                        result$composite %>% round(2))))
+             main=paste(experiment,
+                        'low.ref:-1.octave high.ref:2.octaves d:1.36%')))
   print(lines(mami.codi$full$profile$interval, mami.codi$full$profile$output,
              col=homey.red, lwd = 3))
   print(abline(v = 0:15,lty = 2, col = "gray"))
@@ -144,7 +153,7 @@ plot_mami.codi <- function(result, experiment) {
 # winner so far: m1 t1 h2 l-1 r100
 
 results = mami.codi.results %>% dplyr::arrange(dplyr::desc(composite))
-for (rank in 25:1) {
+for (rank in 1:1) {
   for (experiment in experiments) {
     plot_mami.codi(results %>% dplyr::slice(rank),experiment)
   }
@@ -170,3 +179,32 @@ print(results, n=30)
 #      pch=10,col=homey.red, main=results$label[rank]))
 # print(abline(v = 0:15,lty = 2, col = "gray"))
 # print(axis(1, at=0:15))
+
+# major.minor = readRDS('/Users/landlessness/Documents/git/pmcharrison/timbre-and-consonance-paper/explorations/data/no.timbre/models/mami.codi.m.1.t.1.h.2.l.-1.r.73.54.rds')
+#
+# plot(no.timbre$interval,
+#            no.timbre$consonance_dissonance,
+#            col=no.timbre$color,
+#            main=paste('maj:gold min:blue neu:red low.ref:-1.octave high.ref:2.octaves d:1.36%'))
+# abline(v = 0:15,lty = 2, col = "gray")
+# axis(1, at=0:15)
+
+#
+# intervals = seq(60,75,0.015)
+# data = intervals %>% lapply(function(interval) {
+#   chord = hrep::freq(hrep::sparse_fr_spectrum(c(60,interval)))
+#   mami.codi(chord,
+#             FUN = periodicity,
+#             high_register  =  2,
+#             low_register   = -1,
+#             resolution     = 73.54,
+#             tonic_selector = tonic_selectors()[1])
+# }) %>% bind_rows
+#
+# data$interval <- intervals
+#
+# data$color="blue" # minor
+# data$color[data$major_minor>0]="gold" # major
+# data$color[data$major_minor==0]="red" # neutral
+#
+# saveRDS(data, 'explorations/data/no.timbre/models/mami.codi.m.1.t.1.h.2.l.-1.r.73.54.rds')
