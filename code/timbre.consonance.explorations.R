@@ -66,16 +66,16 @@ for (rank in 10:1) {
 }
 
 print(results, n=50)
-#
-# results = mami.codi.results %>% dplyr::arrange(desc(pearson)) %>%
-#   dplyr::filter(grepl('mami.codi.m.1.t.1.h.10.l.-1', label))
-#
-# for (rank in 24:1) {
-#   # best
-#   plot_mami.codi(results %>% dplyr::slice(rank))
-# }
-#
-# print(results,n=Inf)
+
+results = mami.codi.results %>% dplyr::arrange(desc(pearson)) %>%
+  dplyr::filter(grepl('mami.codi.m.1.t.1.h.6.l.-1.r.73[56]', label))
+
+for (rank in nrow(results):1) {
+  # best
+  plot_mami.codi(results %>% dplyr::slice(rank))
+}
+
+print(results,n=Inf)
 
 #
 # plot_mami.codi(ref_4.1 %>% dplyr::slice(2))
