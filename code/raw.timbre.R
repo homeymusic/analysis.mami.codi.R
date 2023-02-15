@@ -22,6 +22,7 @@ if (FALSE) {
                                      harmonic.pearson = numeric(),
                                      stretched.pearson = numeric(),
                                      composite.pearson = numeric(),
+                                     composite = numeric(),
                                      label = character(),
                                      metric = numeric(),
                                      tonic_selector = numeric(),
@@ -127,19 +128,19 @@ if (FALSE) {
     composite.dtw = (bonang.dtw + compressed.dtw + harmonic.dtw + stretched.dtw),
     composite.pearson = (bonang.pearson + compressed.pearson + harmonic.pearson + stretched.pearson))
 
+  max.dtw = mami.codi.results$composite.dtw %>% max
+
+  mami.codi.results <- mami.codi.results %>% dplyr::mutate(
+    composite = (max.dtw - composite.dtw) * composite.pearson
+  )
+
   saveRDS(mami.codi.results, mami.codi.results.rds)
 }
-composite.dtw.max = mami.codi.results$composite.dtw %>% max
-print(plot(composite.dtw.max- mami.codi.results$composite.dtw,mami.codi.results$composite.pearson))
 
-tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label))
-tuning.composite.dtw.max = tuning$composite.dtw %>% max
-tuning = tuning %>% dplyr::arrange((tuning.composite.dtw.max-tuning$composite.dtw)*tuning$composite.pearson)
-print(plot(tuning$resolution,
-           (tuning.composite.dtw.max-tuning$composite.dtw)*tuning$composite.pearson,
-           log='x'))
+tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label)) %>%
+  dplyr::arrange(dplyr::desc(composite))
+print(plot(tuning$resolution,tuning$composite,log='x'))
 print(tuning,n=10)
-
 
 homey.brown       = '#664433'
 homey.cream       = '#F3DDAB'
@@ -168,7 +169,7 @@ plot_mami.codi <- function(result, experiment) {
   print(plot(mami.codi$full$raw_profile$interval,
              mami.codi$full$raw_profile$output,
              col=homey.dark.cream,
-             main=paste(experiment,'resolution:',result$resolution,'dtw:',result$composite.dtw)))
+             main=paste(experiment,'resolution:',result$resolution,'composite:',result$composite)))
   print(lines(mami.codi$full$profile$interval, mami.codi$full$profile$output,
               col=homey.red, lwd = 3))
   print(abline(v = 0:15,lty = 2, col = "gray"))
@@ -177,8 +178,7 @@ plot_mami.codi <- function(result, experiment) {
 
 # winner so far: m1 t1 h2 l-1 r100
 
-results = mami.codi.results %>%
-  dplyr::arrange(dplyr::desc((composite.dtw.max-composite.dtw) * composite.pearson))
+results = mami.codi.results %>% dplyr::arrange(dplyr::desc(composite))
 for (rank in 10:1) {
   for (experiment in experiments) {
     plot_mami.codi(results %>% dplyr::slice(rank),experiment)
