@@ -7,13 +7,12 @@ source('code/setup.R')
 mami.codi.results.rds = '/Users/landlessness/Documents/git/homeymusic/analysis.mami.codi.R/data/mami.codi.results.rds'
 mami.codi.results = NULL
 
+# TRUE generates new data
+# FALSE loads data from file
 if (FALSE) {
-  mami.codi.results = readRDS(mami.codi.results.rds)
-} else {
 
-
-  mami.codi.results = tibble::tibble(bonang.dtw = numeric(),
-                                     compressed.dtw = numeric(),
+    mami.codi.results = tibble::tibble(bonang.dtw = numeric(),
+                                       compressed.dtw = numeric(),
                                      harmonic.dtw = numeric(),
                                      stretched.dtw = numeric(),
                                      composite.dtw = numeric(),
@@ -135,12 +134,25 @@ if (FALSE) {
   )
 
   saveRDS(mami.codi.results, mami.codi.results.rds)
+} else {
+  mami.codi.results = readRDS(mami.codi.results.rds)
 }
 
 tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label)) %>%
   dplyr::arrange(dplyr::desc(composite))
-print(plot(tuning$resolution,tuning$composite,log='x'))
+print(plot(tuning$resolution,tuning$composite,log='x',main='t.1.h.2.l.-1'))
+print(abline(v=tuning$resolution[1]))
+print(abline(h=tuning$composite[1]))
+text(min(tuning$resolution), tuning$composite[1],
+     as.character(tuning$composite[1]%>% round(2)), pos = 3)
+text(tuning$resolution[1]-2, min(tuning$composite),
+     as.character(tuning$resolution[1]%>% round(2)), pos = 3, srt=90)
 print(tuning,n=10)
+
+print(plot(1/tuning$resolution*100,tuning$composite,log='x',main='t.1.h.2.l.-1'))
+print(tuning,n=10)
+
+print(plot(mami.codi.results$resolution,mami.codi.results$composite,log='x',main='all data'))
 
 homey.brown       = '#664433'
 homey.cream       = '#F3DDAB'
