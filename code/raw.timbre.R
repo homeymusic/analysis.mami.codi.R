@@ -3,13 +3,12 @@
 
 source('code/setup.R')
 
-
 mami.codi.results.rds = '/Users/landlessness/Documents/git/homeymusic/analysis.mami.codi.R/data/mami.codi.results.rds'
 mami.codi.results = NULL
 
 # TRUE generates new data
 # FALSE loads data from file
-if (FALSE) {
+if (TRUE) {
 
   mami.codi.results = tibble::tibble(bonang.dtw = numeric(),
                                      compressed.dtw = numeric(),
@@ -102,12 +101,20 @@ if (FALSE) {
       filename = paste0(experiment.models.dir,label,'.rds')
       experiment.model.mami.codi = readRDS(filename)
 
-      dtw = dtw(experiment.model.mami.codi$full$profile$output,
-                experiment.behavior$profile$rating,
+      results <- tibble::tibble(
+        model    = experiment.model.mami.codi$full$profile$output,
+        behavior = experiment.behavior$profile$rating
+      )
+
+      results.normalized <- (preProcess(results, method=c('range')) %>%
+                               predict(results))
+
+      dtw = dtw(results.normalized$model,
+                results.normalized$behavior,
                 distance_only=TRUE)$normalizedDistance
 
-      pearson = cor(experiment.model.mami.codi$full$profile$output,
-                    experiment.behavior$profile$rating,
+      pearson = cor(results.normalized$model,
+                    results.normalized$behavior,
                     method='pearson')
 
       mami.codi.results <- dplyr::rows_update(
@@ -139,8 +146,7 @@ if (FALSE) {
   mami.codi.results = readRDS(mami.codi.results.rds)
 }
 
-tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label)) %>%
-  dplyr::arrange(dplyr::desc(composite))
+tuning = mami.codi.results %>% dplyr::filter(grepl('m.1.t.1.h.2.l.-1.r', label))
 print(plot(tuning$resolution,tuning$composite,log='x',main='t.1.h.2.l.-1'))
 print(abline(v=tuning$resolution[1]))
 print(abline(h=tuning$composite[1]))
@@ -179,7 +185,8 @@ plot_mami.codi <- function(result, experiment) {
   print(plot(mami.codi$full$raw_profile$interval,
              mami.codi$full$raw_profile$output,
              col=homey.dark.cream,
-             main=paste(experiment,'resolution:',result$resolution,'composite:',result$composite)))
+             main=paste(experiment,'resolution:',round(result$resolution,4),
+                        'composite:',round(result$composite,4))))
   print(lines(mami.codi$full$profile$interval, mami.codi$full$profile$output,
               col=homey.red, lwd = 3))
   print(abline(v = 0:15,lty = 2, col = "gray"))
@@ -187,15 +194,15 @@ plot_mami.codi <- function(result, experiment) {
 }
 
 # winner so far: m1 t1 h2 l-1 r100
-
-results = mami.codi.results %>% dplyr::arrange(dplyr::desc(composite.dtw))
+results = mami.codi.results %>%
+  dplyr::arrange(stretched.dtw) %>% dplyr::filter(resolution > 70)
 for (rank in 10:1) {
   for (experiment in experiments) {
     plot_mami.codi(results %>% dplyr::slice(rank),experiment)
   }
 }
 
-print(results, n=100)
+print(results, n=10)
 
 # results = mami.codi.results %>% dplyr::arrange(desc(pearson)) %>%
 #   dplyr::filter(grepl('h.2.l.-2', label))
