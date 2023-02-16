@@ -9,19 +9,16 @@ mami.codi.results = NULL
 
 # TRUE generates new data
 # FALSE loads data from file
-if (TRUE) {
+if (FALSE) {
 
-    mami.codi.results = tibble::tibble(bonang.dtw = numeric(),
-                                       compressed.dtw = numeric(),
+  mami.codi.results = tibble::tibble(bonang.dtw = numeric(),
+                                     compressed.dtw = numeric(),
                                      harmonic.dtw = numeric(),
                                      stretched.dtw = numeric(),
-                                     composite.dtw = numeric(),
                                      bonang.pearson = numeric(),
                                      compressed.pearson = numeric(),
                                      harmonic.pearson = numeric(),
                                      stretched.pearson = numeric(),
-                                     composite.pearson = numeric(),
-                                     composite = numeric(),
                                      label = character(),
                                      metric = numeric(),
                                      tonic_selector = numeric(),
@@ -53,17 +50,21 @@ if (TRUE) {
     label = canonical.mami.codi$full$model$label
     checkmate::assert_true(paste0(label,'.rds') == canonical.file)
 
+    results <- tibble::tibble(
+      model = canonical.mami.codi$full$profile$output,
+      behavior = canonical.behavior$profile$rating
+    )
 
-    # print(canonical.model.filename)
-    dtw = dtw(canonical.mami.codi$full$profile$output,
-              canonical.behavior$profile$rating,
+    results.normalized <- (preProcess(results, method=c('range')) %>%
+                             predict(results))
+
+    dtw = dtw(results.normalized$model,
+              results.normalized$behavior,
               distance_only=TRUE)$normalizedDistance
-    # print(paste('dtw:',dtw))
 
-    pearson = cor(canonical.mami.codi$full$profile$output,
-                  canonical.behavior$profile$rating,
+    pearson = cor(results.normalized$model,
+                  results.normalized$behavior,
                   method='pearson')
-    # print(paste('pearson:',pearson))
 
     mami.codi.results <- mami.codi.results %>% tibble::add_row (
       "{canonical.experiment}.dtw"     := dtw,
@@ -187,7 +188,7 @@ plot_mami.codi <- function(result, experiment) {
 
 # winner so far: m1 t1 h2 l-1 r100
 
-results = mami.codi.results %>% dplyr::arrange(dplyr::desc(composite))
+results = mami.codi.results %>% dplyr::arrange(dplyr::desc(composite.dtw))
 for (rank in 10:1) {
   for (experiment in experiments) {
     plot_mami.codi(results %>% dplyr::slice(rank),experiment)

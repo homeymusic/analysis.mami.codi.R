@@ -22,20 +22,33 @@ if (TRUE) {
 
   experiments = c('harmonic','stretched','compressed','bonang')
 
-  for (model in models) {
-    for (experiment in experiments) {
-      filename = paste0(dir,'/timbre.models/behavior','.',experiment,'.rds')
-      behavior.experiment = readRDS(filename)
+  for (experiment in experiments) {
 
+    filename = paste0(dir,'/timbre.models/behavior','.',experiment,'.rds')
+    behavior.experiment = readRDS(filename)
+
+    results <- tibble::tibble(
+      behavior = behavior.experiment$profile$rating
+    )
+
+    for (model in models) {
       filename = paste0(dir,'/timbre.models/',model,'.',experiment,'.rds')
       model.experiment = readRDS(filename)
+      results <- results %>% dplyr::mutate(
+        "{model}" := model.experiment$full$profile$output
+      )
+    }
+    results.normalized <- (preProcess(results, method=c('range')) %>%
+                             predict(results))
 
-      dynamic.time.warping = dtw(model.experiment$full$profile$output,
-                                 behavior.experiment$profile$rating,
+    for (model in models) {
+
+      dynamic.time.warping = dtw(results.normalized[[model]],
+                                 results.normalized$behavior,
                                  distance_only=TRUE)$normalizedDistance
 
-      pearson = cor(model.experiment$full$profile$output,
-                    behavior.experiment$profile$rating,
+      pearson = cor(results.normalized[[model]],
+                    results.normalized$behavior,
                     method='pearson')
 
       model.experiments <- model.experiments %>%
@@ -58,7 +71,7 @@ if (TRUE) {
 
   model.experiments <- model.experiments %>% dplyr::mutate(
     composite = (max.dtw - composite.dtw) * composite.pearson
-  )
+  ) %>% dplyr::arrange(dplyr::desc(composite))
 
   saveRDS(model.experiments, model.experiments.rds)
 } else {
